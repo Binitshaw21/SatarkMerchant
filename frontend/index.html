@@ -9,39 +9,94 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030712; color: #f3f4f6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #030712; color: #f3f4f6; overflow-x: hidden; }
         .font-mono { font-family: 'JetBrains Mono', monospace; }
         .hero-glow {
             background: radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.15) 0%, rgba(3, 7, 18, 0) 70%);
         }
+        
+        /* Glassmorphism Cards with 3D transition */
         .card-border {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease, box-shadow 0.4s ease;
         }
         .card-border:hover {
-            border-color: rgba(56, 189, 248, 0.4);
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.1);
+            border-color: rgba(56, 189, 248, 0.5);
+            box-shadow: 0 15px 40px rgba(56, 189, 248, 0.15);
+            transform: translateY(-5px);
         }
+
+        /* Particle floating animation in background */
+        .particles { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+        .particle {
+            position: absolute; border-radius: 50%; background: rgba(56, 189, 248, 0.4);
+            animation: float 20s infinite linear;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Text Shine Animation */
+        .text-shine {
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
+        }
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        /* Button Glow */
+        .btn-glow {
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        .btn-glow::before {
+            content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(45deg, #0ea5e9, #38bdf8, #818cf8, #0ea5e9);
+            z-index: -1; border-radius: inherit; background-size: 400%;
+            animation: glowing 20s linear infinite; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .btn-glow:hover::before { opacity: 1; }
+        .btn-glow:active { transform: scale(0.97); }
+        @keyframes glowing { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
+
+        /* Scroll Reveal Animation */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
     </style>
 </head>
 <body class="min-h-screen hero-glow selection:bg-sky-500 selection:text-white">
 
+    <!-- CSS Particles -->
+    <div class="particles" id="particles"></div>
+
     <!-- NAVIGATION -->
-    <nav class="sticky top-0 z-50 backdrop-blur-md bg-gray-950/80 border-b border-gray-800/80">
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-gray-950/80 border-b border-gray-800/80 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center font-mono font-bold text-gray-950 text-base shadow-lg shadow-sky-500/30">
+                <div class="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center font-mono font-bold text-gray-950 text-base shadow-[0_0_15px_rgba(14,165,233,0.5)]">
                     S
                 </div>
                 <span class="text-lg font-extrabold tracking-wider text-white font-mono">SATARK<span class="text-sky-400">MERCHANT</span></span>
             </div>
             <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-400">
-                <a href="#threat" class="hover:text-sky-400 transition">Threat Model</a>
-                <a href="#architecture" class="hover:text-sky-400 transition">AWS Pipeline</a>
-                <a href="#impact" class="hover:text-sky-400 transition">Social Impact</a>
+                <a href="#how-it-works" class="hover:text-sky-400 transition-colors duration-200">How It Works</a>
+                <a href="#threat" class="hover:text-sky-400 transition-colors duration-200">Threat Model</a>
+                <a href="#architecture" class="hover:text-sky-400 transition-colors duration-200">Architecture</a>
             </div>
             <div class="flex items-center space-x-4">
-                <a href="app.html" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg bg-sky-500 text-gray-950 hover:bg-sky-400 transition shadow-lg shadow-sky-500/20 font-mono">
+                <a href="app.html" class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg bg-sky-500 text-gray-950 hover:bg-sky-400 transition shadow-[0_0_15px_rgba(14,165,233,0.3)] font-mono hover:scale-105 active:scale-95">
                     LAUNCH APP &rarr;
                 </a>
             </div>
@@ -49,64 +104,108 @@
     </nav>
 
     <!-- HERO SECTION -->
-    <section class="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center relative">
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full card-border text-xs font-mono text-sky-400 mb-8">
-            <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+    <section class="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center relative reveal active">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full card-border text-xs font-mono text-sky-400 mb-8 hover:bg-sky-900/20">
+            <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse shadow-[0_0_8px_rgba(56,189,248,1)]"></span>
             BUILT ON AWS • ZERO-HARDWARE DEFENSE
         </div>
         <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-tight">
-            Protecting Bharat's Micro-Merchants from <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-indigo-400">Rogue QR Sticker Overlays</span>
+            Protecting Bharat's Micro-Merchants from <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-teal-300 to-indigo-400 text-shine">Rogue QR Sticker Overlays</span>
         </h1>
-        <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+        <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed reveal delay-100">
             Over 50 million street vendors rely on printed paper QR stands. Scammers physically paste duplicate stickers to hijack daily earnings. SatarkMerchant delivers sub-second optical UPI audits powered by an event-driven AWS serverless pipeline.
         </p>
 
-        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a href="app.html" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-sky-500 hover:bg-sky-400 text-gray-950 font-bold text-base transition duration-200 shadow-xl shadow-sky-500/25 font-mono">
+        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center reveal delay-200">
+            <a href="app.html" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-sky-500 hover:bg-sky-400 text-gray-950 font-bold text-base transition duration-200 shadow-[0_0_20px_rgba(14,165,233,0.4)] font-mono btn-glow">
                 TRY LIVE SCANNER
             </a>
-            <a href="#architecture" class="w-full sm:w-auto px-8 py-4 rounded-xl card-border hover:bg-gray-900/60 text-gray-200 font-semibold text-base transition duration-200 font-mono">
-                EXPLORE AWS ARCHITECTURE
+            <a href="#how-it-works" class="w-full sm:w-auto px-8 py-4 rounded-xl card-border text-gray-200 font-semibold text-base transition duration-200 font-mono">
+                HOW IT WORKS
             </a>
         </div>
 
         <!-- Terminal Status Strip -->
-        <div class="mt-16 max-w-2xl mx-auto card-border rounded-xl p-4 font-mono text-left text-xs bg-gray-950/80 shadow-2xl">
-            <div class="flex items-center justify-between pb-2 border-b border-gray-800 text-gray-500">
+        <div class="mt-16 max-w-2xl mx-auto card-border rounded-xl p-4 font-mono text-left text-xs bg-gray-950/80 shadow-2xl reveal delay-300 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-sky-500 to-emerald-500"></div>
+            <div class="flex items-center justify-between pb-2 border-b border-gray-800 text-gray-500 pl-2">
                 <span>SYSTEM TELEMETRY</span>
-                <span class="text-emerald-400 font-bold">AWS_AP_SOUTH_1_ONLINE</span>
+                <span class="text-emerald-400 font-bold drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]">AWS_AP_SOUTH_1_ONLINE</span>
             </div>
-            <div class="pt-3 space-y-1 text-gray-400">
-                <p><span class="text-sky-400">&gt;</span> Latency Benchmark: <span class="text-emerald-400">&lt; 180ms</span> end-to-end</p>
-                <p><span class="text-sky-400">&gt;</span> Edge Optical Validation: <span class="text-emerald-400">HTML5 Web Assembly</span></p>
-                <p><span class="text-sky-400">&gt;</span> Threat Notification Engine: <span class="text-emerald-400">Amazon SNS Multi-Channel</span></p>
+            <div class="pt-3 space-y-2 text-gray-400 pl-2">
+                <p class="flex items-center group"><span class="text-sky-400 mr-2 group-hover:translate-x-1 transition-transform">&gt;</span> Latency Benchmark: <span class="text-emerald-400 ml-1">&lt; 180ms</span> end-to-end</p>
+                <p class="flex items-center group"><span class="text-sky-400 mr-2 group-hover:translate-x-1 transition-transform">&gt;</span> Edge Optical Validation: <span class="text-emerald-400 ml-1">HTML5 Web Assembly</span></p>
+                <p class="flex items-center group"><span class="text-sky-400 mr-2 group-hover:translate-x-1 transition-transform">&gt;</span> Threat Notification Engine: <span class="text-emerald-400 ml-1">Amazon SNS Multi-Channel</span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how-it-works" class="py-24 bg-gray-900/30 border-t border-gray-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+                <h2 class="text-xs font-mono uppercase tracking-widest text-sky-400">The Solution</h2>
+                <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white">Three Steps to Total Security</p>
+                <p class="mt-4 text-gray-400">A frictionless flow designed for high-traffic street vendors.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
+                <!-- Connecting Line (hidden on mobile) -->
+                <div class="hidden md:block absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-sky-500/30 to-transparent -translate-y-1/2 -z-10"></div>
+                
+                <div class="card-border rounded-2xl p-8 text-center reveal">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-800/80 mx-auto flex items-center justify-center border border-slate-700 mb-6 shadow-xl relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-sky-500/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <svg class="w-8 h-8 text-sky-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">1. Register & Print</h3>
+                    <p class="text-gray-400 text-sm">Merchants securely register their legitimate UPI ID in our cloud database and display their standard paper QR stand.</p>
+                </div>
+
+                <div class="card-border rounded-2xl p-8 text-center reveal delay-100">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-800/80 mx-auto flex items-center justify-center border border-slate-700 mb-6 shadow-xl relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-sky-500/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <svg class="w-8 h-8 text-sky-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">2. Daily Audit Scan</h3>
+                    <p class="text-gray-400 text-sm">Whenever suspicious of tampering, the merchant opens the Satark app and scans their countertop QR in one click.</p>
+                </div>
+
+                <div class="card-border rounded-2xl p-8 text-center reveal delay-200">
+                    <div class="w-16 h-16 rounded-2xl bg-slate-800/80 mx-auto flex items-center justify-center border border-slate-700 mb-6 shadow-xl relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-emerald-500/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        <svg class="w-8 h-8 text-emerald-400 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">3. Instant Verification</h3>
+                    <p class="text-gray-400 text-sm">Our AWS Lambda backend cryptographically matches the scanned payload against the database. Fraud is flagged in under 200ms.</p>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- THE PROBLEM (THREAT MODEL) -->
-    <section id="threat" class="py-20 bg-gray-950/50 border-t border-b border-gray-900">
+    <section id="threat" class="py-24 bg-gray-950/50 border-t border-b border-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
                 <h2 class="text-xs font-mono uppercase tracking-widest text-sky-400">The Attack Vector</h2>
                 <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white">The "Paper Blindspot" of India's UPI Boom</p>
                 <p class="mt-4 text-gray-400">While consumers scan QRs to make payments, small merchants have zero technical tools to verify their physical countertop stand hasn't been tampered with.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="card-border rounded-2xl p-8">
-                    <div class="w-12 h-12 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 font-mono font-bold mb-6">01</div>
+                <div class="card-border rounded-2xl p-8 reveal">
+                    <div class="w-12 h-12 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 font-mono font-bold mb-6 group-hover:scale-110 transition-transform">01</div>
                     <h3 class="text-xl font-bold text-white mb-3">Physical Hijack</h3>
                     <p class="text-gray-400 text-sm leading-relaxed">Bad actors print custom QR stickers with identical dimensions and discreetly slap them over the merchant's authentic code during peak counter rushes.</p>
                 </div>
 
-                <div class="card-border rounded-2xl p-8">
+                <div class="card-border rounded-2xl p-8 reveal delay-100">
                     <div class="w-12 h-12 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400 font-mono font-bold mb-6">02</div>
                     <h3 class="text-xl font-bold text-white mb-3">Silent Revenue Drain</h3>
                     <p class="text-gray-400 text-sm leading-relaxed">Customers scan the fraudulent code and the payment goes through instantly—but to the scammer's bank account instead of the shopkeeper's.</p>
                 </div>
 
-                <div class="card-border rounded-2xl p-8">
+                <div class="card-border rounded-2xl p-8 reveal delay-200">
                     <div class="w-12 h-12 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 font-mono font-bold mb-6">03</div>
                     <h3 class="text-xl font-bold text-white mb-3">Zero-Hardware Audit</h3>
                     <p class="text-gray-400 text-sm leading-relaxed">SatarkMerchant eliminates expensive IoT biometric sensors. Any merchant can use their basic smartphone camera to audit their stand in two clicks.</p>
@@ -116,69 +215,108 @@
     </section>
 
     <!-- ARCHITECTURE BREAKDOWN -->
-    <section id="architecture" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div class="text-center max-w-3xl mx-auto mb-16">
+    <section id="architecture" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative overflow-hidden">
+        <!-- Glow accent -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+        
+        <div class="text-center max-w-3xl mx-auto mb-16 reveal relative z-10">
             <h2 class="text-xs font-mono uppercase tracking-widest text-sky-400">Engineered For Scale</h2>
             <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white">Full-Stack Serverless Architecture</p>
             <p class="mt-4 text-gray-400">Zero servers to provision, zero idle maintenance costs, and designed for sub-second verification across tier-2 and tier-3 networks.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div class="card-border rounded-xl p-6">
-                <span class="text-xs font-mono text-sky-400">EDGE COMPUTE</span>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+            <div class="card-border rounded-xl p-6 reveal hover:-translate-y-2 group">
+                <span class="text-xs font-mono text-sky-400 group-hover:text-sky-300 transition-colors">EDGE COMPUTE</span>
                 <h4 class="text-lg font-bold text-white mt-2">AWS Amplify</h4>
-                <p class="text-xs text-gray-400 mt-2">Hosts the secure HTTPS responsive dashboard with continuous deployment directly from Git.</p>
+                <p class="text-xs text-gray-400 mt-2 leading-relaxed">Hosts the secure HTTPS responsive dashboard with continuous deployment directly from Git.</p>
             </div>
 
-            <div class="card-border rounded-xl p-6">
-                <span class="text-xs font-mono text-sky-400">API GATEWAY</span>
+            <div class="card-border rounded-xl p-6 reveal delay-100 hover:-translate-y-2 group">
+                <span class="text-xs font-mono text-sky-400 group-hover:text-sky-300 transition-colors">API GATEWAY</span>
                 <h4 class="text-lg font-bold text-white mt-2">REST Ingestion</h4>
-                <p class="text-xs text-gray-400 mt-2">Low-latency HTTP endpoints with Lambda proxy integration and strict CORS controls.</p>
+                <p class="text-xs text-gray-400 mt-2 leading-relaxed">Low-latency HTTP endpoints with Lambda proxy integration and strict CORS controls.</p>
             </div>
 
-            <div class="card-border rounded-xl p-6">
-                <span class="text-xs font-mono text-sky-400">DECISION ENGINE</span>
+            <div class="card-border rounded-xl p-6 reveal delay-200 hover:-translate-y-2 group">
+                <span class="text-xs font-mono text-sky-400 group-hover:text-sky-300 transition-colors">DECISION ENGINE</span>
                 <h4 class="text-lg font-bold text-white mt-2">AWS Lambda</h4>
-                <p class="text-xs text-gray-400 mt-2">Python 3.10 microservices executing UPI query string sanitization and cryptographic matching.</p>
+                <p class="text-xs text-gray-400 mt-2 leading-relaxed">Python 3.10 microservices executing UPI query string sanitization and cryptographic matching.</p>
             </div>
 
-            <div class="card-border rounded-xl p-6">
-                <span class="text-xs font-mono text-sky-400">DATABASE & NOTIFICATION</span>
+            <div class="card-border rounded-xl p-6 reveal delay-300 hover:-translate-y-2 group">
+                <span class="text-xs font-mono text-sky-400 group-hover:text-sky-300 transition-colors">DATABASE & NOTIFICATION</span>
                 <h4 class="text-lg font-bold text-white mt-2">DynamoDB + SNS</h4>
-                <p class="text-xs text-gray-400 mt-2">Single-digit millisecond baseline key-value lookups paired with automated incident dispatch.</p>
+                <p class="text-xs text-gray-400 mt-2 leading-relaxed">Single-digit millisecond baseline key-value lookups paired with automated incident dispatch.</p>
             </div>
         </div>
     </section>
 
     <!-- IMPACT / STATS -->
-    <section id="impact" class="py-16 bg-sky-950/20 border-t border-gray-900">
+    <section id="impact" class="py-20 bg-sky-950/20 border-t border-gray-900 reveal">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center font-mono">
-                <div>
-                    <div class="text-3xl sm:text-5xl font-extrabold text-sky-400">&lt; 200ms</div>
-                    <div class="text-xs sm:text-sm text-gray-400 mt-2 uppercase tracking-wide">Audit Latency</div>
+                <div class="p-4 rounded-xl hover:bg-white/5 transition-colors duration-300">
+                    <div class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-sky-400 to-sky-600">&lt; 200ms</div>
+                    <div class="text-xs sm:text-sm text-gray-400 mt-3 uppercase tracking-wide">Audit Latency</div>
                 </div>
-                <div>
-                    <div class="text-3xl sm:text-5xl font-extrabold text-emerald-400">&#8377;0</div>
-                    <div class="text-xs sm:text-sm text-gray-400 mt-2 uppercase tracking-wide">Hardware Upfront Cost</div>
+                <div class="p-4 rounded-xl hover:bg-white/5 transition-colors duration-300">
+                    <div class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-emerald-600">&#8377;0</div>
+                    <div class="text-xs sm:text-sm text-gray-400 mt-3 uppercase tracking-wide">Hardware Upfront Cost</div>
                 </div>
-                <div>
-                    <div class="text-3xl sm:text-5xl font-extrabold text-indigo-400">100%</div>
-                    <div class="text-xs sm:text-sm text-gray-400 mt-2 uppercase tracking-wide">Serverless Uptime</div>
+                <div class="p-4 rounded-xl hover:bg-white/5 transition-colors duration-300">
+                    <div class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-indigo-400 to-indigo-600">100%</div>
+                    <div class="text-xs sm:text-sm text-gray-400 mt-3 uppercase tracking-wide">Serverless Uptime</div>
                 </div>
-                <div>
-                    <div class="text-3xl sm:text-5xl font-extrabold text-yellow-400">Real-Time</div>
-                    <div class="text-xs sm:text-sm text-gray-400 mt-2 uppercase tracking-wide">Threat Alerts</div>
+                <div class="p-4 rounded-xl hover:bg-white/5 transition-colors duration-300">
+                    <div class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-orange-500">Real-Time</div>
+                    <div class="text-xs sm:text-sm text-gray-400 mt-3 uppercase tracking-wide">Threat Alerts</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- FOOTER -->
-    <footer class="py-12 border-t border-gray-900 text-center text-xs text-gray-500 font-mono">
-        <p class="mb-2">SATARKMERCHANT // BUILT WITH AWS SERVERLESS</p>
+    <footer class="py-12 border-t border-gray-900 text-center text-xs text-gray-500 font-mono bg-gray-950/50">
+        <p class="mb-2 text-gray-400 font-bold tracking-widest">SATARKMERCHANT // BUILT WITH AWS SERVERLESS</p>
         <p>Built for the First Commit Hackathon • WeMakeDevs & AWS Bharat Builds Tour</p>
     </footer>
 
+    <script>
+        // 1. Generate Particle Background
+        const particlesContainer = document.getElementById('particles');
+        for(let i=0; i<15; i++) {
+            let p = document.createElement('div');
+            p.className = 'particle';
+            let size = Math.random() * 4 + 2;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = (Math.random() * 20 + 10) + 's';
+            p.style.animationDelay = (Math.random() * 10) + 's';
+            particlesContainer.appendChild(p);
+        }
+
+        // 2. Scroll Reveal Observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.15
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Stop observing once revealed
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach((element) => {
+            // Only observe elements not already in view to avoid initial flash
+            observer.observe(element);
+        });
+    </script>
 </body>
 </html>
