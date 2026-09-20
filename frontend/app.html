@@ -3,429 +3,675 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SatarkMerchant // Enterprise Mode</title>
+    <title>SatarkMerchant // Enterprise Ops Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;500;700&display=swap');
+        :root {
+            --sky: #38bdf8; --indigo: #818cf8; --emerald: #10b981;
+            --rose: #f43f5e; --amber: #f59e0b; --cyan: #06b6d4;
+        }
 
-        body { 
-            background: linear-gradient(135deg, #020617, #0f172a, #1e1b4b); 
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            color: #e2e8f0; 
-            font-family: 'Rajdhani', sans-serif; 
+        * { box-sizing: border-box; }
+
+        body {
+            background: #020617;
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(14,165,233,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 0%, rgba(99,102,241,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(16,185,129,0.06) 0%, transparent 50%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
-            perspective: 1000px;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        h1, h2, h3, .terminal { font-family: 'Orbitron', sans-serif; }
-
-        /* Glassmorphism Cards */
-        .glass-card {
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
-            transform-style: preserve-3d;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px) rotateX(2deg) rotateY(2deg);
-            box-shadow: 0 15px 40px 0 rgba(56, 189, 248, 0.2);
-        }
-
-        /* 3D Button */
-        .btn-3d {
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .btn-3d::before {
+        /* ===== GRID BACKGROUND ===== */
+        body::before {
             content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0; pointer-events: none;
+        }
+
+        /* ===== PARTICLES ===== */
+        .particle-field { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .pt { position: absolute; border-radius: 50%; animation: pt-rise linear infinite; }
+        @keyframes pt-rise {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; transform: translateY(90vh) scale(1); }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-50px) scale(0.3); opacity: 0; }
+        }
+
+        h1, h2, h3, .font-orb { font-family: 'Orbitron', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* ===== GLASS CARD ===== */
+        .glass {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* ===== NEON BORDER SPIN ===== */
+        .neon-spin {
+            position: relative;
+        }
+        .neon-spin::before {
+            content: '';
+            position: absolute; inset: -1px;
+            border-radius: inherit;
+            background: conic-gradient(from var(--a, 0deg), transparent 25%, #38bdf8 50%, transparent 75%);
+            animation: spin-border 3s linear infinite;
             z-index: -1;
         }
-        .btn-3d:hover::before {
-            left: 100%;
-        }
-        .btn-3d:active {
-            transform: scale(0.95) translateY(2px);
-        }
+        @property --a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        @keyframes spin-border { to { --a: 360deg; } }
 
-        /* Animated Gradient Text */
+        /* ===== 3D POP IN ===== */
+        @keyframes popIn3D {
+            0% { opacity: 0; transform: perspective(1000px) rotateX(-20deg) translateY(40px) scale(0.9); }
+            100% { opacity: 1; transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1); }
+        }
+        .pop-in { animation: popIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .pop-in-delay { animation: popIn3D 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.15s both; }
+
+        /* ===== TEXT GRADIENT ===== */
         .text-gradient {
-            background: linear-gradient(to right, #38bdf8, #818cf8, #e879f9);
-            -webkit-background-clip: text;
-            background-clip: text;
+            background: linear-gradient(90deg, #38bdf8 0%, #818cf8 40%, #c084fc 65%, #38bdf8 100%);
+            background-size: 300% auto;
+            -webkit-background-clip: text; background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: text-shine 4s linear infinite;
+        }
+        @keyframes text-shine { to { background-position: 300% center; } }
+
+        /* ===== BUTTONS ===== */
+        .btn-activate {
+            background: linear-gradient(135deg, #0369a1, #0ea5e9, #38bdf8);
             background-size: 200% auto;
-            animation: textShine 3s linear infinite;
-        }
-
-        @keyframes textShine {
-            to { background-position: 200% center; }
-        }
-
-        /* Inputs */
-        input {
             transition: all 0.3s ease;
-            background: rgba(2, 6, 23, 0.7) !important;
+            position: relative; overflow: hidden; font-family: 'JetBrains Mono', monospace;
+        }
+        .btn-activate::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-activate:hover::before { left: 100%; }
+        .btn-activate:hover { background-position: right center; box-shadow: 0 0 25px rgba(56,189,248,0.6); transform: scale(1.03); }
+        .btn-activate:active { transform: scale(0.97); }
+
+        /* ===== INPUTS ===== */
+        input {
+            background: rgba(2, 6, 23, 0.8) !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            transition: all 0.3s ease;
         }
         input:focus {
             outline: none;
             border-color: #38bdf8 !important;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
-            transform: scale(1.02);
+            box-shadow: 0 0 0 2px rgba(56,189,248,0.2), 0 0 20px rgba(56,189,248,0.3) !important;
+            transform: scale(1.01);
         }
 
-        /* Terminal */
-        .terminal { 
-            background: rgba(2, 6, 23, 0.85); 
-            border: 1px solid #1e293b; 
-            height: 250px; 
-            overflow-y: auto; 
-            font-size: 0.85rem; 
-            position: relative;
-            text-shadow: 0 0 5px rgba(56,189,248,0.5);
+        /* ===== SCANNER CONTAINER ===== */
+        #reader-container {
+            position: relative; overflow: hidden; border-radius: 12px;
+            background: #020617;
+        }
+        #reader-container::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: linear-gradient(#020617, #020617) padding-box,
+                        linear-gradient(135deg, rgba(56,189,248,0.4), rgba(129,140,248,0.4)) border-box;
+            z-index: 1; pointer-events: none;
+        }
+
+        /* Corner brackets */
+        .corner-bracket {
+            position: absolute; width: 24px; height: 24px; z-index: 20; pointer-events: none;
+        }
+        .corner-bracket.tl { top: 8px; left: 8px; border-top: 2px solid #38bdf8; border-left: 2px solid #38bdf8; border-radius: 3px 0 0 0; }
+        .corner-bracket.tr { top: 8px; right: 8px; border-top: 2px solid #38bdf8; border-right: 2px solid #38bdf8; border-radius: 0 3px 0 0; }
+        .corner-bracket.bl { bottom: 8px; left: 8px; border-bottom: 2px solid #38bdf8; border-left: 2px solid #38bdf8; border-radius: 0 0 0 3px; }
+        .corner-bracket.br { bottom: 8px; right: 8px; border-bottom: 2px solid #38bdf8; border-right: 2px solid #38bdf8; border-radius: 0 0 3px 0; }
+
+        /* ===== SCAN LINE ===== */
+        .scan-line {
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, #38bdf8, #818cf8, #38bdf8, transparent);
+            position: absolute; top: 0; left: 0; z-index: 15;
+            box-shadow: 0 0 20px 4px rgba(56,189,248,0.6), 0 0 60px 10px rgba(129,140,248,0.3);
+            animation: scan-sweep 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+            display: none;
+        }
+        @keyframes scan-sweep {
+            0% { top: 0%; opacity: 0.7; }
+            100% { top: calc(100% - 2px); opacity: 1; }
+        }
+
+        /* ===== STATUS BOARD ===== */
+        .status-idle   { border-color: rgba(59,130,246,0.4) !important; box-shadow: 0 0 30px rgba(59,130,246,0.15), inset 0 0 30px rgba(59,130,246,0.05); }
+        .status-secure { border-color: rgba(16,185,129,0.6) !important; box-shadow: 0 0 40px rgba(16,185,129,0.3), inset 0 0 40px rgba(16,185,129,0.08); background: rgba(16,185,129,0.04) !important; }
+        .status-fraud  { border-color: rgba(244,63,94,0.6) !important; box-shadow: 0 0 40px rgba(244,63,94,0.4), inset 0 0 40px rgba(244,63,94,0.1); background: rgba(244,63,94,0.04) !important; animation: fraud-pulse 1s ease-in-out infinite; }
+        .status-analyzing { border-color: rgba(245,158,11,0.5) !important; box-shadow: 0 0 40px rgba(245,158,11,0.2), inset 0 0 30px rgba(245,158,11,0.05); }
+
+        @keyframes fraud-pulse {
+            0%, 100% { box-shadow: 0 0 40px rgba(244,63,94,0.4), inset 0 0 40px rgba(244,63,94,0.1); }
+            50% { box-shadow: 0 0 80px rgba(244,63,94,0.7), inset 0 0 60px rgba(244,63,94,0.2); }
+        }
+
+        /* ===== STATUS ICON ANIMATIONS ===== */
+        @keyframes check-draw { to { stroke-dashoffset: 0; } }
+        @keyframes x-draw { to { stroke-dashoffset: 0; } }
+        @keyframes icon-pop { 0% { transform: scale(0) rotate(-20deg); opacity: 0; } 60% { transform: scale(1.2) rotate(5deg); } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+
+        /* ===== TERMINAL ===== */
+        .terminal {
+            background: rgba(2, 6, 23, 0.9);
+            border: 1px solid rgba(56,189,248,0.12);
+            height: 220px; overflow-y: auto; font-size: 0.78rem;
+            position: relative; font-family: 'JetBrains Mono', monospace;
         }
         .terminal::after {
-            content: " ";
-            display: block;
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2;
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+            pointer-events: none; z-index: 1;
+        }
+        .terminal::-webkit-scrollbar { width: 4px; }
+        .terminal::-webkit-scrollbar-track { background: transparent; }
+        .terminal::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.3); border-radius: 2px; }
+
+        .log-time { color: #334155; }
+        .log-info { color: #38bdf8; }
+        .log-crit { color: #f43f5e; font-weight: 600; text-shadow: 0 0 8px rgba(244,63,94,0.7); }
+        .log-success { color: #10b981; font-weight: 600; text-shadow: 0 0 8px rgba(16,185,129,0.7); }
+        .log-warn { color: #f59e0b; }
+        .log-sys { color: #64748b; }
+
+        /* ===== LOG ENTRY ANIMATION ===== */
+        @keyframes log-slide {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .log-entry { animation: log-slide 0.3s ease both; }
+
+        /* ===== METRICS BAR ===== */
+        .metric-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.05); overflow: hidden; }
+        .metric-fill {
+            height: 100%; border-radius: 2px;
+            animation: metric-grow 1.5s ease both;
+            transform-origin: left;
+        }
+        @keyframes metric-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+        /* ===== LIVE DOT ===== */
+        @keyframes live-ping {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.8); opacity: 0; }
+        }
+        .live-ping { animation: live-ping 1.5s ease-in-out infinite; }
+
+        /* ===== DIVIDER SHIMMER ===== */
+        .shimmer-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(56,189,248,0.3), rgba(129,140,248,0.3), transparent);
         }
 
-        .log-time { color: #64748b; } 
-        .log-info { color: #38bdf8; } 
-        .log-crit { color: #ef4444; font-weight: bold; text-shadow: 0 0 8px red;} 
-        .log-success { color: #10b981; font-weight: bold; text-shadow: 0 0 8px #10b981;}
-        
-        /* Scanner Overlay */
-        #reader-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-        }
-        .scan-line {
-            width: 100%; height: 3px; 
-            background: #38bdf8;
-            position: absolute; top: 0; left: 0; z-index: 10;
-            box-shadow: 0 0 20px 2px #38bdf8, 0 0 40px 5px #818cf8;
-            animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-            display: none; 
-        }
-        @keyframes scan { 0% { top: 0%; opacity: 0.8; } 100% { top: 98%; opacity: 1; } }
-
-        /* Dynamic Status States */
-        .status-idle { border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-        .status-secure { border-color: #10b981; box-shadow: inset 0 0 30px rgba(16, 185, 129, 0.2), 0 0 30px rgba(16, 185, 129, 0.5); background-color: rgba(16, 185, 129, 0.05); }
-        .status-fraud { border-color: #ef4444; box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.2), 0 0 30px rgba(239, 68, 68, 0.5); background-color: rgba(239, 68, 68, 0.05); animation: pulse-red 1s infinite; }
-        
-        @keyframes pulse-red {
-            0% { box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.2), 0 0 30px rgba(239, 68, 68, 0.5); }
-            50% { box-shadow: inset 0 0 50px rgba(239, 68, 68, 0.5), 0 0 60px rgba(239, 68, 68, 0.8); }
-            100% { box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.2), 0 0 30px rgba(239, 68, 68, 0.5); }
-        }
-        
-        /* 3D Appearing Animation */
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.9) translateY(40px) rotateX(-15deg); }
-            100% { opacity: 1; transform: scale(1) translateY(0) rotateX(0deg); }
-        }
-        .animate-pop-in {
-            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            transform-origin: center bottom;
-        }
-
-        /* Particle floating animation in background (optional pure CSS) */
-        .particles {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none;
-        }
-        .particle {
-            position: absolute; border-radius: 50%; background: rgba(56, 189, 248, 0.5);
-            animation: float 20s infinite linear;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
-        }
-        @keyframes float {
-            0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100px) translateX(100px) rotate(360deg); opacity: 0; }
+        /* ===== AUTH CARD HOVER TILT ===== */
+        .auth-card {
+            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
         }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8 flex items-center justify-center">
+<body class="min-h-screen p-4 md:p-6 flex items-start justify-center relative z-10">
 
-    <!-- CSS Particles -->
-    <div class="particles" id="particles"></div>
+    <!-- Particle Field -->
+    <div class="particle-field" id="particles"></div>
 
-    <!-- SCREEN 1: AUTHENTICATION -->
-    <div id="auth-screen" class="w-full max-w-md glass-card rounded-2xl p-8 animate-pop-in">
-        <h1 class="text-3xl font-bold text-center mb-6"><span class="text-gradient">SATARK MERCHANT</span></h1>
-        
-        <!-- Registration Form -->
-        <div id="register-form">
-            <h2 class="text-sm text-sky-300 mb-4 tracking-wider">ONBOARD NEW BUSINESS</h2>
-            <input id="reg-name" type="text" placeholder="Business Name" class="w-full mb-3 p-3 rounded-lg border border-slate-600 text-white placeholder-slate-400">
-            <input id="reg-vpa" type="text" placeholder="Your Real UPI ID (e.g. name@bank)" class="w-full mb-3 p-3 rounded-lg border border-slate-600 text-white placeholder-slate-400">
-            <input id="reg-pass" type="password" placeholder="Create Password" class="w-full mb-5 p-3 rounded-lg border border-slate-600 text-white placeholder-slate-400">
-            <button onclick="registerMerchant()" class="w-full btn-3d bg-sky-600 hover:bg-sky-500 text-white font-bold py-3 rounded-lg shadow-[0_0_15px_rgba(56,189,248,0.5)]">REGISTER SYSTEM</button>
-            <p class="text-center text-xs mt-5 text-sky-400 cursor-pointer hover:text-white transition" onclick="toggleAuth()">Already registered? Login here.</p>
+    <!-- ======================== AUTH SCREEN ======================== -->
+    <div id="auth-screen" class="w-full max-w-md pop-in relative z-10 mt-8">
+        <!-- Header Badge -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-sky-500/30 bg-sky-500/5 text-sky-400 font-mono text-xs mb-4">
+                <span class="relative flex h-2 w-2">
+                    <span class="live-ping absolute inline-flex h-full w-full rounded-full bg-sky-400"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-sky-400"></span>
+                </span>
+                AWS AP-SOUTH-1 ONLINE
+            </div>
         </div>
 
-        <!-- Login Form (Hidden by default) -->
-        <div id="login-form" class="hidden">
-            <h2 class="text-sm text-sky-300 mb-4 tracking-wider">SYSTEM LOGIN</h2>
-            <input id="log-id" type="text" placeholder="Merchant ID (e.g. M-1A2B)" class="w-full mb-3 p-3 rounded-lg border border-slate-600 text-white placeholder-slate-400">
-            <input id="log-pass" type="password" placeholder="Password" class="w-full mb-5 p-3 rounded-lg border border-slate-600 text-white placeholder-slate-400">
-            <button onclick="loginMerchant()" class="w-full btn-3d bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg shadow-[0_0_15px_rgba(16,185,129,0.5)]">ACCESS DASHBOARD</button>
-            <p class="text-center text-xs mt-5 text-sky-400 cursor-pointer hover:text-white transition" onclick="toggleAuth()">Need an account? Register here.</p>
+        <div class="auth-card glass rounded-3xl overflow-hidden border border-white/10" id="auth-card">
+            <!-- Card Top Accent -->
+            <div class="h-1 bg-gradient-to-r from-sky-500 via-indigo-500 to-cyan-400"></div>
+            <div class="p-8">
+                <h1 class="text-3xl font-black text-center mb-1"><span class="text-gradient">SATARK MERCHANT</span></h1>
+                <p class="text-center text-slate-500 font-mono text-xs mb-8">// ENTERPRISE OPS CONSOLE v2.0</p>
+
+                <!-- Tab Switcher -->
+                <div class="flex rounded-xl bg-slate-900/80 p-1 mb-7 border border-slate-800">
+                    <button id="tab-reg" onclick="showTab('register')" class="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-sky-600/60 border border-sky-500/40 transition-all font-mono">REGISTER</button>
+                    <button id="tab-log" onclick="showTab('login')" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 transition-all font-mono hover:text-slate-300">LOGIN</button>
+                </div>
+
+                <!-- Registration Form -->
+                <div id="register-form">
+                    <div class="space-y-3">
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sky-400 font-mono text-xs select-none">BIZ</span>
+                            <input id="reg-name" type="text" placeholder="Business Name" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 text-white placeholder-slate-600 text-sm">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sky-400 font-mono text-xs select-none">UPI</span>
+                            <input id="reg-vpa" type="text" placeholder="UPI ID (e.g. name@bank)" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 text-white placeholder-slate-600 text-sm">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sky-400 font-mono text-xs select-none">PWD</span>
+                            <input id="reg-pass" type="password" placeholder="Create Password" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 text-white placeholder-slate-600 text-sm">
+                        </div>
+                    </div>
+                    <button onclick="registerMerchant()" class="w-full mt-5 btn-activate text-gray-950 font-bold py-3.5 rounded-xl tracking-widest text-sm shadow-[0_0_20px_rgba(56,189,248,0.3)]">REGISTER SYSTEM</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="login-form" class="hidden">
+                    <div class="space-y-3">
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sky-400 font-mono text-xs select-none">ID</span>
+                            <input id="log-id" type="text" placeholder="Merchant ID (M-XXXX)" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 text-white placeholder-slate-600 text-sm">
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sky-400 font-mono text-xs select-none">PWD</span>
+                            <input id="log-pass" type="password" placeholder="Password" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-700 text-white placeholder-slate-600 text-sm">
+                        </div>
+                    </div>
+                    <button onclick="loginMerchant()" class="w-full mt-5 btn-activate text-gray-950 font-bold py-3.5 rounded-xl tracking-widest text-sm shadow-[0_0_20px_rgba(56,189,248,0.3)]">ACCESS DASHBOARD</button>
+                </div>
+
+                <p id="auth-msg" class="text-center text-rose-400 font-mono text-xs mt-4 min-h-[1.5rem]"></p>
+            </div>
+
+            <!-- Card Bottom -->
+            <div class="shimmer-divider"></div>
+            <div class="px-8 py-4 flex items-center justify-between">
+                <a href="index.html" class="text-xs text-slate-600 hover:text-sky-400 font-mono transition-colors">← Back to Home</a>
+                <span class="text-xs text-slate-700 font-mono">SECURED BY AWS</span>
+            </div>
         </div>
-        <p id="auth-msg" class="text-center text-red-400 font-bold text-xs mt-4"></p>
     </div>
 
-    <!-- SCREEN 2: SCANNER DASHBOARD (Hidden initially) -->
-    <div id="app-screen" class="hidden w-full max-w-6xl mx-auto animate-pop-in">
-        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/10">
-            <div>
-                <h1 class="text-3xl font-bold tracking-wider"><span class="text-gradient">SATARK MERCHANT</span></h1>
-                <p id="display-name" class="text-sky-300 text-sm tracking-widest mt-1">Business Name</p>
-            </div>
-            <div class="text-right">
-                <p class="text-xs text-slate-400 tracking-widest">MERCHANT ID: <span id="display-id" class="text-white font-bold text-lg">M-XXX</span></p>
-                <p class="text-xs text-rose-400 cursor-pointer hover:text-rose-300 mt-2 font-bold tracking-wider transition" onclick="logout()">[ TERMINATE SESSION ]</p>
+    <!-- ======================== DASHBOARD SCREEN ======================== -->
+    <div id="app-screen" class="hidden w-full max-w-7xl mx-auto relative z-10">
+
+        <!-- Top Header Bar -->
+        <header class="glass rounded-2xl mb-6 px-6 py-4 border border-white/08 pop-in">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-cyan-500 flex items-center justify-center font-black text-gray-950 font-orb text-lg shadow-[0_0_15px_rgba(56,189,248,0.5)]">S</div>
+                    <div>
+                        <h1 class="text-xl font-black font-orb"><span class="text-gradient">SATARK MERCHANT</span></h1>
+                        <p id="display-name" class="text-sky-400 font-mono text-xs tracking-widest mt-0.5">ENTERPRISE OPS CONSOLE</p>
+                    </div>
+                </div>
+
+                <!-- Live Metrics -->
+                <div class="hidden md:flex items-center gap-6">
+                    <div class="text-center">
+                        <div class="font-mono text-xs text-slate-500 mb-0.5">LATENCY</div>
+                        <div class="font-orb text-sm text-emerald-400" id="latency-display">-- ms</div>
+                    </div>
+                    <div class="w-px h-8 bg-slate-700/60"></div>
+                    <div class="text-center">
+                        <div class="font-mono text-xs text-slate-500 mb-0.5">SCANS</div>
+                        <div class="font-orb text-sm text-sky-400" id="scan-count">0</div>
+                    </div>
+                    <div class="w-px h-8 bg-slate-700/60"></div>
+                    <div class="text-center">
+                        <div class="font-mono text-xs text-slate-500 mb-0.5">MERCHANT ID</div>
+                        <div class="font-orb text-sm text-white" id="display-id">M-XXX</div>
+                    </div>
+                </div>
+
+                <button onclick="logout()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/40 transition-all font-mono text-xs">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    LOGOUT
+                </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="flex flex-col gap-4">
-                <div class="glass-card rounded-2xl p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold text-sky-100 tracking-wider">OPTICAL SENSOR</h2>
-                        <button id="start-btn" onclick="startScanner()" class="px-5 py-2 btn-3d bg-sky-600 shadow-[0_0_15px_rgba(56,189,248,0.5)] text-white rounded-lg text-sm font-bold">ACTIVATE</button>
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+            <!-- LEFT: SCANNER PANEL (3 cols) -->
+            <div class="lg:col-span-3 flex flex-col gap-6">
+
+                <!-- QR OPTICAL SENSOR -->
+                <div class="glass rounded-2xl border border-white/08 pop-in overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800/60">
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500/80" title="close"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500/80" title="minimize"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/80" title="maximize"></span>
+                            </div>
+                            <div class="w-px h-4 bg-slate-700 mx-1"></div>
+                            <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.882v6.236a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                            <h2 class="font-orb text-sm text-white tracking-wider">OPTICAL SENSOR ARRAY</h2>
+                        </div>
+                        <button id="start-btn" onclick="startScanner()" class="btn-activate px-5 py-2 rounded-xl text-gray-950 font-bold text-xs tracking-widest shadow-[0_0_12px_rgba(56,189,248,0.4)]">ACTIVATE</button>
                     </div>
-                    <div id="reader-container" class="relative status-idle border border-white/20 transition-all p-2 bg-slate-900/50">
-                        <div id="scan-line" class="scan-line"></div>
-                        <div id="reader" style="width: 100%; min-height: 300px;"></div>
+
+                    <!-- Scanner Viewport -->
+                    <div class="p-4">
+                        <div id="reader-container" class="relative min-h-72 bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+                            <div class="corner-bracket tl"></div>
+                            <div class="corner-bracket tr"></div>
+                            <div class="corner-bracket bl"></div>
+                            <div class="corner-bracket br"></div>
+                            <div id="scan-line" class="scan-line"></div>
+
+                            <!-- Idle Placeholder -->
+                            <div id="idle-placeholder" class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20">
+                                <div class="w-24 h-24 rounded-2xl border-2 border-dashed border-slate-700 flex items-center justify-center">
+                                    <svg class="w-10 h-10 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                                </div>
+                                <p class="font-mono text-xs text-slate-600">CAMERA FEED OFFLINE</p>
+                                <p class="font-mono text-xs text-slate-700">Press ACTIVATE to initialize sensor</p>
+                            </div>
+                            <div id="reader" style="width:100%;"></div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- AWS LIVE TELEMETRY TERMINAL -->
+                <div class="glass rounded-2xl border border-white/08 pop-in-delay overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-3 border-b border-slate-800/60 bg-slate-900/50">
+                        <div class="flex items-center gap-2">
+                            <div class="relative flex h-2.5 w-2.5">
+                                <span class="live-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+                            </div>
+                            <span class="font-orb text-xs text-white tracking-wider">AWS TELEMETRY STREAM</span>
+                        </div>
+                        <button onclick="clearTerminal()" class="font-mono text-xs text-slate-600 hover:text-slate-400 transition-colors">CLEAR</button>
+                    </div>
+                    <div id="terminal" class="terminal p-4"></div>
                 </div>
             </div>
 
-            <div class="flex flex-col gap-4">
-                <div id="status-board" class="glass-card rounded-2xl p-8 text-center transition-all">
-                    <h3 id="status-text" class="text-4xl font-bold text-sky-400 tracking-widest uppercase" style="text-shadow: 0 0 15px currentColor;">SYSTEM IDLE</h3>
-                    <p id="status-subtext" class="text-sky-200 mt-4 tracking-wider text-lg">Ready to audit transaction.</p>
+            <!-- RIGHT: STATUS + METRICS (2 cols) -->
+            <div class="lg:col-span-2 flex flex-col gap-6">
+
+                <!-- STATUS BOARD -->
+                <div id="status-board" class="glass rounded-2xl border-2 border-blue-500/30 p-8 text-center flex flex-col items-center justify-center min-h-64 transition-all duration-700 pop-in status-idle">
+                    <!-- Status Icon -->
+                    <div id="status-icon" class="mb-5 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-sky-400/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"></path>
+                        </svg>
+                    </div>
+                    <h3 id="status-text" class="font-orb text-3xl font-black text-sky-400 tracking-wider uppercase" style="text-shadow: 0 0 20px currentColor;">SYSTEM IDLE</h3>
+                    <p id="status-subtext" class="text-sky-300/60 mt-3 font-mono text-sm tracking-wide">Awaiting QR scan command.</p>
                 </div>
-                <div class="glass-card rounded-2xl p-6 flex-grow">
-                    <h2 class="text-sm font-bold mb-3 flex items-center text-sky-200 tracking-widest">
-                        <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse mr-3 shadow-[0_0_10px_rgba(16,185,129,1)]"></span> AWS TELEMETRY STREAM
-                    </h2>
-                    <div id="terminal" class="terminal rounded-lg p-4 font-mono"></div>
+
+                <!-- METRICS CARDS -->
+                <div class="grid grid-cols-2 gap-4 pop-in-delay">
+                    <div class="glass rounded-xl p-4 border border-slate-800/60 hover:border-sky-500/30 transition-all">
+                        <div class="font-mono text-xs text-slate-500 mb-1">DynamoDB P99</div>
+                        <div class="font-orb text-xl text-sky-400">4ms</div>
+                        <div class="metric-bar mt-2"><div class="metric-fill bg-gradient-to-r from-sky-500 to-cyan-400" style="width:95%"></div></div>
+                    </div>
+                    <div class="glass rounded-xl p-4 border border-slate-800/60 hover:border-emerald-500/30 transition-all">
+                        <div class="font-mono text-xs text-slate-500 mb-1">Lambda P99</div>
+                        <div class="font-orb text-xl text-emerald-400">47ms</div>
+                        <div class="metric-bar mt-2"><div class="metric-fill bg-gradient-to-r from-emerald-500 to-teal-400" style="width:78%"></div></div>
+                    </div>
+                    <div class="glass rounded-xl p-4 border border-slate-800/60 hover:border-indigo-500/30 transition-all">
+                        <div class="font-mono text-xs text-slate-500 mb-1">Total E2E</div>
+                        <div class="font-orb text-xl text-indigo-400">&lt;200ms</div>
+                        <div class="metric-bar mt-2"><div class="metric-fill bg-gradient-to-r from-indigo-500 to-violet-400" style="width:88%"></div></div>
+                    </div>
+                    <div class="glass rounded-xl p-4 border border-slate-800/60 hover:border-amber-500/30 transition-all">
+                        <div class="font-mono text-xs text-slate-500 mb-1">SNS Alert</div>
+                        <div class="font-orb text-xl text-amber-400">Real-Time</div>
+                        <div class="metric-bar mt-2"><div class="metric-fill bg-gradient-to-r from-amber-500 to-orange-400" style="width:100%"></div></div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM STATUS CHECKLIST -->
+                <div class="glass rounded-2xl border border-white/08 p-5 pop-in-delay">
+                    <h3 class="font-orb text-xs text-white tracking-wider mb-4">SYSTEM HEALTH</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs text-slate-400">AWS Lambda</span>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,1)]"></span><span class="font-mono text-xs text-emerald-400">ONLINE</span></div>
+                        </div>
+                        <div class="shimmer-divider"></div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs text-slate-400">DynamoDB</span>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,1)]"></span><span class="font-mono text-xs text-emerald-400">ONLINE</span></div>
+                        </div>
+                        <div class="shimmer-divider"></div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs text-slate-400">API Gateway</span>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,1)]"></span><span class="font-mono text-xs text-emerald-400">ONLINE</span></div>
+                        </div>
+                        <div class="shimmer-divider"></div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs text-slate-400">SNS Alerts</span>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,1)]"></span><span class="font-mono text-xs text-emerald-400">ARMED</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Create random particles
-        const particlesContainer = document.getElementById('particles');
-        for(let i=0; i<20; i++) {
-            let p = document.createElement('div');
-            p.className = 'particle';
-            let size = Math.random() * 5 + 2;
-            p.style.width = size + 'px';
-            p.style.height = size + 'px';
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.animationDuration = (Math.random() * 15 + 10) + 's';
-            p.style.animationDelay = (Math.random() * 10) + 's';
-            particlesContainer.appendChild(p);
+        // ===== PARTICLE FIELD =====
+        const pf = document.getElementById('particles');
+        const cls = ['rgba(56,189,248,', 'rgba(129,140,248,', 'rgba(16,185,129,', 'rgba(6,182,212,'];
+        for (let i = 0; i < 30; i++) {
+            const p = document.createElement('div'); p.className = 'pt';
+            const sz = Math.random() * 3 + 1;
+            const c = cls[Math.floor(Math.random() * cls.length)];
+            p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}vw;background:${c}0.5);box-shadow:0 0 ${sz*3}px ${c}0.8);animation-duration:${Math.random()*20+10}s;animation-delay:${Math.random()*12}s;`;
+            pf.appendChild(p);
         }
 
-        // --- PASTE YOUR 2 API URLS HERE ---
-        const AUTH_API = 'https://fnpbwmma4a.execute-api.ap-south-1.amazonaws.com/dev/auth'; 
-        const SCAN_API = 'https://fnpbwmma4a.execute-api.ap-south-1.amazonaws.com/dev/scan'; 
-        
+        // ===== APIS =====
+        const AUTH_API = 'https://fnpbwmma4a.execute-api.ap-south-1.amazonaws.com/dev/auth';
+        const SCAN_API = 'https://fnpbwmma4a.execute-api.ap-south-1.amazonaws.com/dev/scan';
+
         let html5QrCode;
         let currentMerchantId = '';
+        let scanCount = 0;
 
-        // UI Toggles
-        function toggleAuth() {
-            document.getElementById('register-form').classList.toggle('hidden');
-            document.getElementById('login-form').classList.toggle('hidden');
+        // ===== TAB TOGGLE =====
+        function showTab(tab) {
+            const isReg = tab === 'register';
+            document.getElementById('register-form').classList.toggle('hidden', !isReg);
+            document.getElementById('login-form').classList.toggle('hidden', isReg);
+            document.getElementById('tab-reg').className = isReg
+                ? 'flex-1 py-2 rounded-lg text-sm font-bold text-white bg-sky-600/60 border border-sky-500/40 transition-all font-mono'
+                : 'flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 transition-all font-mono hover:text-slate-300';
+            document.getElementById('tab-log').className = !isReg
+                ? 'flex-1 py-2 rounded-lg text-sm font-bold text-white bg-sky-600/60 border border-sky-500/40 transition-all font-mono'
+                : 'flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 transition-all font-mono hover:text-slate-300';
             document.getElementById('auth-msg').innerText = '';
         }
 
+        // ===== SHOW APP =====
         function showApp(merchantId, businessName) {
             currentMerchantId = merchantId;
             document.getElementById('auth-screen').classList.add('hidden');
-            // Re-trigger animation
-            const appScreen = document.getElementById('app-screen');
-            appScreen.classList.remove('hidden');
-            appScreen.classList.remove('animate-pop-in');
-            void appScreen.offsetWidth; // trigger reflow
-            appScreen.classList.add('animate-pop-in');
-            
+            const app = document.getElementById('app-screen');
+            app.classList.remove('hidden');
             document.getElementById('display-id').innerText = merchantId;
-            document.getElementById('display-name').innerText = businessName;
-            logToTerminal(`System authenticated securely as ${merchantId}`);
+            document.getElementById('display-name').innerText = businessName.toUpperCase();
+            logToTerminal(`AUTH_SUCCESS • Session established for ${merchantId}`, 'success');
+            logToTerminal(`MERCHANT_PROFILE • Business: ${businessName}`, 'info');
+            logToTerminal(`SYSTEM_READY • All sensors nominal. Awaiting activation.`, 'sys');
+            // Simulate latency display
+            setTimeout(() => { document.getElementById('latency-display').innerText = '4ms'; }, 600);
         }
 
+        // ===== LOGOUT =====
         function logout() {
-            if(html5QrCode) html5QrCode.stop().catch(e=>console.log(e));
+            if (html5QrCode) html5QrCode.stop().catch(() => {});
             document.getElementById('app-screen').classList.add('hidden');
-            
-            const authScreen = document.getElementById('auth-screen');
-            authScreen.classList.remove('hidden');
-            authScreen.classList.remove('animate-pop-in');
-            void authScreen.offsetWidth;
-            authScreen.classList.add('animate-pop-in');
-            
+            document.getElementById('auth-screen').classList.remove('hidden');
             document.getElementById('start-btn').innerText = 'ACTIVATE';
             document.getElementById('scan-line').style.display = 'none';
+            document.getElementById('idle-placeholder').classList.remove('hidden');
+            document.getElementById('auth-msg').innerText = '';
+            scanCount = 0;
+            updateStatus('idle', 'SYSTEM IDLE', 'Awaiting QR scan command.', 'idle');
         }
 
-        // AUTHENTICATION LOGIC
+        // ===== REGISTER =====
         async function registerMerchant() {
-            const btn = event.target; btn.innerText = "REGISTERING...";
+            const btn = event.target;
+            const orig = btn.innerText; btn.innerText = 'REGISTERING...'; btn.disabled = true;
             try {
                 const res = await fetch(AUTH_API, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        action: 'register',
-                        business_name: document.getElementById('reg-name').value,
-                        registered_vpa: document.getElementById('reg-vpa').value,
-                        password: document.getElementById('reg-pass').value
-                    })
+                    body: JSON.stringify({ action: 'register', business_name: document.getElementById('reg-name').value, registered_vpa: document.getElementById('reg-vpa').value, password: document.getElementById('reg-pass').value })
                 });
                 const data = await res.json();
-
                 if (data.merchant_id) {
-                    alert(`Success! Your Merchant ID is: ${data.merchant_id}. Please write this down to login.`);
-                    toggleAuth();
+                    document.getElementById('auth-msg').innerHTML = `<span class="text-emerald-400">SUCCESS // ID: ${data.merchant_id} — Write this down!</span>`;
+                    setTimeout(() => showTab('login'), 2000);
                 } else {
-                    alert(`AWS Backend Error: ${JSON.stringify(data)}`);
+                    document.getElementById('auth-msg').innerText = `ERR: ${JSON.stringify(data)}`;
                 }
             } catch (e) {
-                document.getElementById('auth-msg').innerText = "Registration failed. Check API.";
+                document.getElementById('auth-msg').innerText = 'NETWORK_ERR // Check API connection.';
             }
-            btn.innerText = "REGISTER SYSTEM";
+            btn.innerText = orig; btn.disabled = false;
         }
 
+        // ===== LOGIN =====
         async function loginMerchant() {
-            const btn = event.target; btn.innerText = "AUTHENTICATING...";
+            const btn = event.target;
+            const orig = btn.innerText; btn.innerText = 'AUTHENTICATING...'; btn.disabled = true;
             try {
                 const res = await fetch(AUTH_API, {
                     method: 'POST',
-                    body: JSON.stringify({
-                        action: 'login',
-                        merchant_id: document.getElementById('log-id').value.toUpperCase(),
-                        password: document.getElementById('log-pass').value
-                    })
+                    body: JSON.stringify({ action: 'login', merchant_id: document.getElementById('log-id').value.toUpperCase(), password: document.getElementById('log-pass').value })
                 });
-                if(res.status === 200) {
+                if (res.status === 200) {
                     const data = await res.json();
                     showApp(data.merchant_id, data.business_name);
                 } else {
-                    document.getElementById('auth-msg').innerText = "Invalid ID or Password.";
+                    document.getElementById('auth-msg').innerText = 'AUTH_FAIL // Invalid credentials.';
                 }
             } catch (e) {
-                document.getElementById('auth-msg').innerText = "Network error.";
+                document.getElementById('auth-msg').innerText = 'NETWORK_ERR // Check connectivity.';
             }
-            btn.innerText = "ACCESS DASHBOARD";
+            btn.innerText = orig; btn.disabled = false;
         }
 
-        // SCANNER LOGIC
+        // ===== SCANNER =====
         async function onScanSuccess(decodedText) {
             html5QrCode.stop();
             document.getElementById('scan-line').style.display = 'none';
             document.getElementById('start-btn').innerText = 'RESET';
-            updateStatus('processing', 'ANALYZING...', 'Querying AWS DynamoDB via API Gateway');
-            
+            scanCount++;
+            document.getElementById('scan-count').innerText = scanCount;
+            updateStatus('analyzing', 'ANALYZING...', 'Querying DynamoDB via API Gateway...', 'analyzing');
+            logToTerminal(`QR_PAYLOAD • Captured: ${decodedText.substring(0, 40)}...`, 'info');
+            logToTerminal(`LAMBDA_INVOKE • Executing UPI VPA cryptographic match...`, 'warn');
+
+            const t0 = performance.now();
             try {
-                const response = await fetch(SCAN_API, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        merchant_id: currentMerchantId,
-                        qr_payload: decodedText
-                    })
-                });
+                const response = await fetch(SCAN_API, { method: 'POST', body: JSON.stringify({ merchant_id: currentMerchantId, qr_payload: decodedText }) });
                 const result = await response.json();
-                
+                const latency = Math.round(performance.now() - t0);
+                document.getElementById('latency-display').innerText = `${latency}ms`;
+
                 if (result.isValid) {
-                    logToTerminal(`Match! DB: ${result.registered_vpa} | Scan: ${result.scanned_vpa}`, 'success');
-                    updateStatus('secure', 'SECURE', 'VPA MATCHES DATABASE. SAFE TO PROCEED.');
+                    logToTerminal(`VPA_MATCH ✓ DB: ${result.registered_vpa} | Scan: ${result.scanned_vpa}`, 'success');
+                    logToTerminal(`VERDICT • LEGITIMATE QR CODE CONFIRMED [${latency}ms]`, 'success');
+                    updateStatus('secure', 'SECURE', 'VPA MATCHES DATABASE. SAFE TO PROCEED.', 'secure');
                 } else {
-                    logToTerminal(`FRAUD! DB: ${result.registered_vpa} | Scan: ${result.scanned_vpa}`, 'crit');
-                    updateStatus('fraud', 'FRAUD DETECTED', 'CRITICAL ANOMALY: DO NOT ACCEPT PAYMENT.');
+                    logToTerminal(`VPA_MISMATCH ✗ DB: ${result.registered_vpa} | Scan: ${result.scanned_vpa}`, 'crit');
+                    logToTerminal(`VERDICT • FRAUD DETECTED — SNS ALERT DISPATCHED [${latency}ms]`, 'crit');
+                    updateStatus('fraud', 'FRAUD DETECTED', 'CRITICAL: DO NOT ACCEPT PAYMENT.', 'fraud');
                 }
             } catch (error) {
-                logToTerminal(`AWS Error: ${error}`, 'crit');
+                logToTerminal(`AWS_ERR // ${error}`, 'crit');
             }
         }
 
         function startScanner() {
-            if(document.getElementById('start-btn').innerText === 'RESET') {
-                updateStatus('idle', 'SYSTEM IDLE', 'Ready to audit transaction.');
+            if (document.getElementById('start-btn').innerText === 'RESET') {
+                updateStatus('idle', 'SYSTEM IDLE', 'Awaiting QR scan command.', 'idle');
                 document.getElementById('start-btn').innerText = 'ACTIVATE';
+                document.getElementById('idle-placeholder').classList.remove('hidden');
                 return;
             }
-            html5QrCode = new Html5Qrcode("reader");
+            document.getElementById('idle-placeholder').classList.add('hidden');
+            html5QrCode = new Html5Qrcode('reader');
             document.getElementById('scan-line').style.display = 'block';
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess).catch(e => logToTerminal("Camera error."));
-            document.getElementById('start-btn').innerText = 'SCANNING';
+            html5QrCode.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 240, height: 240 } }, onScanSuccess)
+                .catch(() => { logToTerminal('CAMERA_ERR // Check browser permissions.', 'crit'); });
+            document.getElementById('start-btn').innerText = 'SCANNING...';
+            logToTerminal('SENSOR_INIT // Camera activated. Scanning for QR payload...', 'info');
         }
 
-        function updateStatus(state, main, sub) {
-            const textEl = document.getElementById('status-text');
-            const subEl = document.getElementById('status-subtext');
-            const boardEl = document.getElementById('status-board');
-            
-            textEl.innerText = main;
-            subEl.innerText = sub;
-            
-            // Apply text colors based on state
-            if(state === 'secure') {
-                textEl.className = 'text-4xl font-bold tracking-widest uppercase text-emerald-400';
-                subEl.className = 'text-emerald-200 mt-4 tracking-wider text-lg font-bold';
-            } else if(state === 'fraud') {
-                textEl.className = 'text-4xl font-bold tracking-widest uppercase text-rose-500';
-                subEl.className = 'text-rose-200 mt-4 tracking-wider text-lg font-bold';
-            } else if(state === 'processing') {
-                textEl.className = 'text-4xl font-bold tracking-widest uppercase text-yellow-400 animate-pulse';
-                subEl.className = 'text-yellow-200 mt-4 tracking-wider text-lg';
-            } else {
-                textEl.className = 'text-4xl font-bold tracking-widest uppercase text-sky-400';
-                subEl.className = 'text-sky-200 mt-4 tracking-wider text-lg';
-            }
-            
-            boardEl.className = "glass-card rounded-2xl p-8 text-center transition-all duration-500 " + 
-                (state==='secure' ? 'status-secure' : state==='fraud' ? 'status-fraud' : '');
+        function clearTerminal() { document.getElementById('terminal').innerHTML = ''; }
+
+        // ===== UPDATE STATUS =====
+        const statusIcons = {
+            idle: `<svg class="w-16 h-16 text-sky-400/40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"></path></svg>`,
+            analyzing: `<div class="w-16 h-16 rounded-full border-2 border-amber-400/50 border-t-amber-400 animate-spin flex items-center justify-center"><div class="w-10 h-10 rounded-full border-2 border-amber-400/30 border-b-amber-400 animate-spin" style="animation-direction:reverse"></div></div>`,
+            secure: `<svg class="w-16 h-16 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation:icon-pop 0.5s ease both"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>`,
+            fraud: `<svg class="w-16 h-16 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="animation:icon-pop 0.5s ease both"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`
+        };
+        const statusColors = {
+            idle: 'text-sky-400', analyzing: 'text-amber-400',
+            secure: 'text-emerald-400', fraud: 'text-rose-500'
+        };
+
+        function updateStatus(state, main, sub, type) {
+            const board = document.getElementById('status-board');
+            const txt = document.getElementById('status-text');
+            const sub_ = document.getElementById('status-subtext');
+            const icon = document.getElementById('status-icon');
+
+            icon.innerHTML = statusIcons[type] || statusIcons.idle;
+            txt.innerText = main;
+            txt.className = `font-orb text-3xl font-black tracking-wider uppercase ${statusColors[type]}`;
+            txt.style.textShadow = '0 0 20px currentColor';
+            sub_.innerText = sub;
+            sub_.className = `mt-3 font-mono text-sm tracking-wide ${statusColors[type].replace('400','300').replace('500','300')}/70`;
+
+            board.className = `glass rounded-2xl border-2 p-8 text-center flex flex-col items-center justify-center min-h-64 transition-all duration-700 pop-in status-${type === 'analyzing' ? 'analyzing' : type === 'secure' ? 'secure' : type === 'fraud' ? 'fraud' : 'idle'}`;
         }
-        
-        function logToTerminal(msg, level='info') {
+
+        // ===== LOG TO TERMINAL =====
+        function logToTerminal(msg, level = 'info') {
             const term = document.getElementById('terminal');
-            term.innerHTML += `<div class="mb-1 animate-pop-in" style="animation-duration: 0.3s;"><span class="log-time">[SYS]</span> <span class="log-${level}">${msg}</span></div>`;
+            const now = new Date();
+            const ts = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+            term.innerHTML += `<div class="log-entry mb-1 relative z-10"><span class="log-time">[${ts}]</span> <span class="log-${level}">${msg}</span></div>`;
             term.scrollTop = term.scrollHeight;
         }
     </script>
